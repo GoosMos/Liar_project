@@ -14,6 +14,7 @@ let currentChatIndex = 0; // 현재 순서를 확인
 let chatCnt = 0; // 매 턴마다의 채팅 횟수
 let totalCnt = 0; // 턴 수
 let spectators = 0;  // 관전자 수를 관리하는 변수
+let spectatorCounter = 1;  // 관전자 번호를 부여하기 위한 카운터
 
 // 함수를 이용하여 메시지를 전체에게 전달
 const broadcast = (data) => {
@@ -78,9 +79,8 @@ const endGame = () => {
     });
 };
 
-
 wss.on('connection', (ws) => {
-    const clientId = clientCounter++
+    const clientId = clientCounter++;
     clients.set(clientId, ws);
     console.log(`${clientId} connected`);
 
@@ -88,6 +88,7 @@ wss.on('connection', (ws) => {
         ws.isPlayer = true;  // 플레이어로 표시
     } else {
         ws.isPlayer = false;  // 관전자로 표시
+        ws.spectatorNumber = spectatorCounter++;
         spectators++;
     }
 
@@ -100,6 +101,15 @@ wss.on('connection', (ws) => {
     ws.on('message', (message) => {
         const parsedMessage = JSON.parse(message);
         console.log(`${clientId} : ${parsedMessage}`); // 사용자가 단어에 대한 설명을 채팅으로 보내면 이를 채팅창에 출력
+
+        if (parsedMessage.type === 'spectatorMessage') {
+            if (!ws.isPlayer) {
+                broadcast({ type: 'spectatorMessage', message: `Spectator ${ws.spectatorNumber}: ${parsedMessage.message}` });
+            } else {
+                ws.send(JSON.stringify({ type: 'error', message: 'Players cannot participate in spectator chat.' }));
+            }
+            return;
+        }
 
         if (!gameState) { 
             ws.send(JSON.stringify({ type: 'error', message: 'Game not in progress.' }));
