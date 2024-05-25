@@ -13,6 +13,7 @@ let chatOrder = []; // 채팅의 순서
 let currentChatIndex = 0; // 현재 순서를 확인
 let chatCnt = 0; // 매 턴마다의 채팅 횟수
 let totalCnt = 0; // 턴 수
+let spectators = 0;  // 관전자 수를 관리하는 변수
 
 // 함수를 이용하여 메시지를 전체에게 전달
 const broadcast = (data) => {
@@ -22,24 +23,34 @@ const broadcast = (data) => {
             client.send(message);
         }
     });
-}
+};
+
+// 상태를 업데이트하고 전체에게 전송
+const updateStatus = () => {
+    const playerCount = Array.from(clients.values()).filter(client => client.isPlayer).length;
+    broadcast({
+        type: 'status',
+        players: playerCount,
+        spectators
+    });
+};
 
 const startGame = () => {
     gameState = true;
     let RandomWords = words.sort(() => Math.random() - 0.5); // 단어를 랜덤으로 정렬한다.
-    chatOrder = Array.from(clients.keys()).sort(() => Math.random() - 0.5); // 채팅 순서를 랜덤으로 설정
+    chatOrder = Array.from(clients.keys()).filter(id => clients.get(id).isPlayer).sort(() => Math.random() - 0.5); // 채팅 순서를 랜덤으로 설정
     currentChatIndex = 0; // 첫 번째 클라이언트부터 시작
 
     let i = 0;
     clients.forEach((client) => {
-        if (client.readyState === WebSocket.OPEN) { // 접속한 클라이언트에게 랜덤으로 단어를 제공한다.
+        if (client.isPlayer && client.readyState === WebSocket.OPEN) { // 접속한 클라이언트에게 랜덤으로 단어를 제공한다.
             client.send(JSON.stringify({ type: 'word', word: RandomWords[i++] }));
         }
     });
 
     broadcast({ type: 'chat', message: `GAME START!!!\nChating order: ${chatOrder.map(id => `Client ${id}`).join(', ')}` }); // 해당 문구가 클라이언트 채팅에서 보이지 않는 문제 발생
     broadcast({ type: 'chat', message: `It's now client ${chatOrder[currentChatIndex]}'s turn.` }); // 채팅 순서를 알려준다.
-}
+};
 
 // 투표를 수행하고 결과를 채팅창에 보여준다.
 const endGame = () => {
@@ -65,14 +76,22 @@ const endGame = () => {
             client.close();
         }
     });
-}
+};
 
 
 wss.on('connection', (ws) => {
     const clientId = clientCounter++
     clients.set(clientId, ws);
     console.log(`${clientId} connected`);
-    broadcast({ type: 'chat', message: `${clientId} connected`}); // 클라이언트가 접속하면 채팅으로 알림
+
+    if (clients.size <= 3 && !gameState) {
+        ws.isPlayer = true;  // 플레이어로 표시
+    } else {
+        ws.isPlayer = false;  // 관전자로 표시
+        spectators++;
+    }
+
+    updateStatus(); // 상태 업데이트
 
     if (clients.size === 3 && !gameState) {
         startGame(); // 클라이언트 3명이 모이면 게임이 시작한다.
@@ -84,6 +103,11 @@ wss.on('connection', (ws) => {
 
         if (!gameState) { 
             ws.send(JSON.stringify({ type: 'error', message: 'Game not in progress.' }));
+            return;
+        }
+
+        if (!ws.isPlayer) {
+            ws.send(JSON.stringify({ type: 'error', message: 'Spectators cannot participate.' }));
             return;
         }
 
@@ -119,17 +143,22 @@ wss.on('connection', (ws) => {
                 broadcast({ type: 'chat', message: `Vote now!` });
             }
         }
-    })
-
+    });
 
     ws.on('close', () => {
         clients.delete(clientId);
         console.log(`${clientId} disconnected`);
 
-        if (gameState && clients.size < 3) {
+        if (ws.isPlayer && gameState && clients.size < 3) {
             gameState = false;
             broadcast({ type: 'chat', message: "Game ended due to a client disconnecting." });
         }
+
+        if (!ws.isPlayer) {
+            spectators--;
+        }
+
+        updateStatus(); // 상태 업데이트
     });
 
     ws.on('error', ( error ) => {

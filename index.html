@@ -17,7 +17,7 @@
 
         #chatContainer {
             width: 400px;
-            height: 400px;
+            height: 300px;
             border: 1px solid #ccc;
             border-radius: 5px;
             padding: 10px;
@@ -43,6 +43,11 @@
             cursor: pointer;
         }
 
+        #status {
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
         #chat p {
             font-weight: bold;
         }
@@ -50,6 +55,7 @@
 </head>
 <body>
     <h1>WebSocket Chat</h1>
+    <div id="status">Status: Connecting...</div>
     <div id="chatContainer">
         <div id="chat"></div>
     </div>
@@ -63,12 +69,14 @@
 
         socket.onopen = () => {
             console.log('Connected to WebSocket server');
+            document.getElementById('status').innerText = 'Status: Connected';
         };
 
         socket.onmessage = (event) => {
             const data = JSON.parse(event.data);
             const chatDiv = document.getElementById('chat');
             const chatContainer = document.getElementById('chatContainer');
+            const statusDiv = document.getElementById('status');
 
             switch (data.type) {
                 case 'message':
@@ -87,6 +95,9 @@
                     break;
                 case 'error':
                     alert(data.message);
+                    break;
+                case 'status': // 상태 업데이트
+                    statusDiv.innerText = `Status: Players: ${data.players}, Spectators: ${data.spectators}`;
                     break;
                 default:
                     break;
