@@ -1,0 +1,9 @@
+config:
+  target: "ws://localhost:12000"
+  phases:
+    - duration: 60      # 테스트 총 60초
+      arrivalRate: 10   # 10초마다 10명의 사용자가 접속
+scenarios:
+  - engine: "ws"
+    flow:
+      - think: 30       # 30초 동안 연결을 유지
