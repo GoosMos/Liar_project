@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Chat</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        #chatContainer {
+            width: 400px;
+            height: 400px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            overflow-y: scroll;
+            margin-bottom: 20px;
+        }
+
+        #messageInput {
+            width: calc(100% - 75px);
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+
+        #sendButton {
+            width: 60px;
+            padding: 5px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        #chat p {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>WebSocket Chat</h1>
+    <div id="chatContainer">
+        <div id="chat"></div>
+    </div>
+    <div>
+        <input type="text" id="messageInput" placeholder="Type your message...">
+        <button id="sendButton" onclick="sendMessage()">Send</button>
+    </div>
+
+    <script>
+        const socket = new WebSocket('ws://localhost:12000');
+
+        socket.onopen = () => {
+            console.log('Connected to WebSocket server');
+        };
+
+        socket.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            const chatDiv = document.getElementById('chat');
+            const chatContainer = document.getElementById('chatContainer');
+
+            switch (data.type) {
+                case 'message':
+                    chatDiv.innerHTML += `<p>${data.message}</p>`;
+                    break;
+                case 'word':
+                    chatDiv.innerHTML += `<p>Your word is: ${data.word}</p>`;
+                    break;
+                case 'chat':
+                    chatDiv.innerHTML += `<p><strong>${data.message}</strong></p>`;
+                    break;
+                case 'result':
+                    const resultMessage = data.correct ? 'TRUE' : 'FALSE';
+                    chatDiv.innerHTML += `<p>${resultMessage}</p>`;
+                    chatDiv.innerHTML += `<p>${data.votes}</p>`;
+                    break;
+                case 'error':
+                    alert(data.message);
+                    break;
+                default:
+                    break;
+            }
+
+            // 새로운 채팅이 오면 항상 스크롤이 아래로 이동
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        };
+
+        function sendMessage() {
+            const messageInput = document.getElementById('messageInput');
+            const message = messageInput.value.trim();
+
+            if (message !== '') {
+                socket.send(JSON.stringify({ type: 'chat', message }));
+                messageInput.value = '';
+            }
+        }
+    </script>
+</body>
+</html>
