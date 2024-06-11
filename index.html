@@ -12,16 +12,17 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            margin: 0;
+            margin: 0 auto;
             font-family: Arial, sans-serif;
-            background-color: #f0f2f5;
-            color: #333;
+            background-color: #464646;
+            color: #e0e0e0;
+            width: 80%;
         }
 
         h1,
         h2 {
             margin-bottom: 10px;
-            color: #007bff;
+            color: #ff0000;
         }
 
         #status {
@@ -34,11 +35,12 @@
         #spectatorChatContainer {
             width: 400px;
             height: 200px;
-            border: 1px solid #ccc;
+            border: 1px solid #d32f2f;
             border-radius: 10px;
             padding: 15px;
-            background-color: #fff;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: #1e1e1e;
+            color: #e0e0e0;
+            box-shadow: 0 4px 8px rgba(211, 47, 47, 0.2);
             overflow-y: scroll;
             margin-bottom: 20px;
         }
@@ -47,10 +49,12 @@
         #spectatorMessageInput {
             width: calc(100% - 75px);
             padding: 10px;
-            border: 1px solid #ccc;
+            border: 1px solid #d32f2f;
             border-radius: 10px;
             margin-right: 10px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            background-color: #2c2c2c;
+            color: #e0e0e0;
+            box-shadow: 0 2px 4px rgba(211, 47, 47, 0.2);
         }
 
         #sendButton,
@@ -59,16 +63,16 @@
             padding: 10px;
             border: none;
             border-radius: 10px;
-            background-color: #007bff;
+            background-color: #ff0000;
             color: #fff;
             cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 4px rgba(211, 47, 47, 0.2);
             transition: background-color 0.3s ease;
         }
 
         #sendButton:hover,
         #sendSpectatorButton:hover {
-            background-color: #0056b3;
+            background-color: #b71c1c;
         }
 
         #chat p,
@@ -91,23 +95,23 @@
             height: 100vh;
             margin: 0;
             font-family: Arial, sans-serif;
-            background-color: #f0f2f5;
-            color: #333;
+            color: #e0e0e0;
             height: 300px;
         }
 
         #spec-div-toggle {
             font-size: 20px;
             cursor: pointer;
-            color: #007bff;
+            color: #ff0000;
             text-decoration: none;
             margin-top: 20px;
             font-weight: bold;
             transition: color 0.3s ease;
+            text-decoration: underline;
         }
 
         #spec-div-toggle:hover {
-            color: #002954;
+            color: #b71c1c;
         }
 
         #input-div {
@@ -134,7 +138,6 @@
     <a id="spec-div-toggle" onclick="toggleSpectatorChat()">Spectator Chat On</a>
 
     <div id="spec-div">
-        
         <div id="spectatorChatContainer">
             <div id="spectatorChat"></div>
         </div>
@@ -143,9 +146,6 @@
             <button id="sendSpectatorButton" onclick="sendSpectatorMessage()">Send</button>
         </div>
     </div>
-    <!-- ------------------------------------------------------------------------------------------------------------------------------ -->
-    <!-- ------------------------------------------------------------------------------------------------------------------------------ -->
-    <!-- ------------------------------------------------------------------------------------------------------------------------------ -->
     <script>
         const socket = new WebSocket('ws://localhost:12000');
 
