@@ -43,6 +43,27 @@
             box-shadow: 0 4px 8px rgba(211, 47, 47, 0.2);
             overflow-y: scroll;
             margin-bottom: 20px;
+            scrollbar-width: thin;
+            scrollbar-color: #d32f2f #1e1e1e;
+        }
+
+        /* For Webkit-based browsers (Chrome, Safari) */
+        #chatContainer::-webkit-scrollbar,
+        #spectatorChatContainer::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        #chatContainer::-webkit-scrollbar-track,
+        #spectatorChatContainer::-webkit-scrollbar-track {
+            background: #1e1e1e;
+            border-radius: 10px;
+        }
+
+        #chatContainer::-webkit-scrollbar-thumb,
+        #spectatorChatContainer::-webkit-scrollbar-thumb {
+            background-color: #d32f2f;
+            border-radius: 10px;
+            border: 3px solid #1e1e1e;
         }
 
         #messageInput,
