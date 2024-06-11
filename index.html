@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebSocket Chat</title>
+    <title>Liar Game</title>
     <style>
         body {
             display: flex;
@@ -13,66 +14,138 @@
             height: 100vh;
             margin: 0;
             font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
         }
 
-        #chatContainer, #spectatorChatContainer {
+        h1,
+        h2 {
+            margin-bottom: 10px;
+            color: #007bff;
+        }
+
+        #status {
+            margin-bottom: 20px;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        #chatContainer,
+        #spectatorChatContainer {
             width: 400px;
             height: 200px;
             border: 1px solid #ccc;
-            border-radius: 5px;
-            padding: 10px;
+            border-radius: 10px;
+            padding: 15px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             overflow-y: scroll;
             margin-bottom: 20px;
         }
 
-        #messageInput, #spectatorMessageInput {
+        #messageInput,
+        #spectatorMessageInput {
             width: calc(100% - 75px);
-            padding: 5px;
+            padding: 10px;
             border: 1px solid #ccc;
-            border-radius: 5px;
+            border-radius: 10px;
             margin-right: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-        #sendButton, #sendSpectatorButton {
+        #sendButton,
+        #sendSpectatorButton {
             width: 60px;
-            padding: 5px;
+            padding: 10px;
             border: none;
-            border-radius: 5px;
+            border-radius: 10px;
             background-color: #007bff;
             color: #fff;
             cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease;
         }
 
-        #status {
-            margin-bottom: 10px;
+        #sendButton:hover,
+        #sendSpectatorButton:hover {
+            background-color: #0056b3;
+        }
+
+        #chat p,
+        #spectatorChat p {
+            font-weight: normal;
+            margin: 0;
+            padding: 5px 0;
+        }
+
+        #chat p strong,
+        #spectatorChat p strong {
             font-weight: bold;
         }
 
-        #chat p, #spectatorChat p {
+        #spec-div {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            height: 300px;
+        }
+
+        #spec-div-toggle {
+            font-size: 20px;
+            cursor: pointer;
+            color: #007bff;
+            text-decoration: none;
+            margin-top: 20px;
             font-weight: bold;
+            transition: color 0.3s ease;
+        }
+
+        #spec-div-toggle:hover {
+            color: #002954;
+        }
+
+        #input-div {
+            display: flex;
+        }
+
+        #spec-div h2 {
+            margin: 0;
         }
     </style>
 </head>
+
 <body>
-    <h1>WebSocket Chat</h1>
-    <div id="status">Status: Connecting...</div>
+    <h1>Liar Game</h1>
+    <div id="status">Connecting...</div>
     <div id="chatContainer">
         <div id="chat"></div>
     </div>
-    <div>
+    <div id="input-div">
         <input type="text" id="messageInput" placeholder="Type your message...">
         <button id="sendButton" onclick="sendMessage()">Send</button>
     </div>
 
-    <h2>Spectator Chat</h2>
-    <div id="spectatorChatContainer">
-        <div id="spectatorChat"></div>
-    </div>
-    <div>
-        <input type="text" id="spectatorMessageInput" placeholder="Type your message...">
-        <button id="sendSpectatorButton" onclick="sendSpectatorMessage()">Send</button>
-    </div>
+    <a id="spec-div-toggle" onclick="toggleSpectatorChat()">Spectator Chat On</a>
 
+    <div id="spec-div">
+        
+        <div id="spectatorChatContainer">
+            <div id="spectatorChat"></div>
+        </div>
+        <div id="input-div">
+            <input type="text" id="spectatorMessageInput" placeholder="Type your message...">
+            <button id="sendSpectatorButton" onclick="sendSpectatorMessage()">Send</button>
+        </div>
+    </div>
+    <!-- ------------------------------------------------------------------------------------------------------------------------------ -->
+    <!-- ------------------------------------------------------------------------------------------------------------------------------ -->
+    <!-- ------------------------------------------------------------------------------------------------------------------------------ -->
     <script>
         const socket = new WebSocket('ws://localhost:12000');
 
@@ -141,6 +214,19 @@
                 messageInput.value = '';
             }
         }
+
+        function toggleSpectatorChat() {
+            const specDiv = document.getElementById('spec-div');
+            const specButton = document.getElementById('spec-div-toggle');
+            if (specDiv.style.display === 'none' || specDiv.style.display === '') {
+                specDiv.style.display = 'flex';
+                specButton.innerText = 'Spectator Chat Off';
+            } else {
+                specDiv.style.display = 'none';
+                specButton.innerText = 'Spectator Chat On';
+            }
+        }
     </script>
 </body>
+
 </html>

@@ -6,7 +6,19 @@ const wss = new WebSocket.Server({ port: 12000 });
 
 const clients = new Map(); // 클라이언트가 추가될 때 마다 해당 자료구조에 추가된다.
 let gameState = false; // 3명이 모이면 게임이 시작한다.
-let words = ['사과', '거짓말', '사과']; // 3명 중 1명은 다른 단어를 받게 된다.
+let words = [
+    ['DHCP', '거짓말', 'DHCP'],
+    ['키보드', '거짓말', '키보드'],
+    ['백준', '거짓말', '백준'],
+    ['TCP', '거짓말', 'TCP'],
+    ['NetWork Layer', '거짓말', 'NetWork Layer'],
+    ['ARP', '거짓말', 'ARP'],
+    ['Link Layer', '거짓말', 'Link Layer'],
+    ['VC', '거짓말', 'VC'],
+    ['MPLS', '거짓말', 'MPLS'],
+    ['MAC', '거짓말', 'MAC']
+]; // 10개의 단어셋
+let selectedWords = []; // 선택된 단어셋
 let votes = []; // 투표 결과를 저장
 let clientCounter = 1; // 클라이언트 ID를 부여하기 위한 카운터
 let chatOrder = []; // 채팅의 순서
@@ -38,7 +50,9 @@ const updateStatus = () => {
 
 const startGame = () => {
     gameState = true;
-    let RandomWords = words.sort(() => Math.random() - 0.5); // 단어를 랜덤으로 정렬한다.
+    // 10개의 단어셋 중 하나를 랜덤으로 선택
+    selectedWords = words[Math.floor(Math.random() * words.length)];
+    let RandomWords = selectedWords.sort(() => Math.random() - 0.5); // 단어를 랜덤으로 정렬한다.
     chatOrder = Array.from(clients.keys()).filter(id => clients.get(id).isPlayer).sort(() => Math.random() - 0.5); // 채팅 순서를 랜덤으로 설정
     currentChatIndex = 0; // 첫 번째 클라이언트부터 시작
 
@@ -62,7 +76,7 @@ const endGame = () => {
     }, {});
     let maxVotes = Math.max(...Object.values(voteCounts));
     let mostVoted = Object.keys(voteCounts).find(key => voteCounts[key] === maxVotes);
-    let otherWordClientId = chatOrder[words.findIndex(word => word === '거짓말')];
+    let otherWordClientId = chatOrder[selectedWords.findIndex(word => word === '거짓말')];
     let correct = parseInt(mostVoted) === otherWordClientId;
     let result = `${mostVoted}`; // 다득표를 받은 클라이언트 아이디
     
